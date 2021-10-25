@@ -23,6 +23,9 @@ class Entity:
     def attach(self, component):
         self.components.append(component)
 
+        if hasattr(component, 'namespace'):
+            self.__dict__[component.namespace] = component
+
         name = component.__class__.__name__
         if name not in self.component_index:
             self.component_index[name] = []
@@ -61,5 +64,5 @@ class System(ABC):
         return list(set.intersection(*res))
 
     @abstractmethod
-    def update(self):
+    def update(self, **kwargs):
         pass
