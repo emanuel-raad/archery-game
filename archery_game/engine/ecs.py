@@ -32,6 +32,18 @@ class Entity:
 
         self.component_index[name].append(self)
 
+    def dettach(self, component):
+        if self.has(component):
+            self.component_index[component.__name__].remove(self)
+            del self.__dict__[component.namespace]
+
+            idx = -1
+            for i, c in enumerate(self.components):
+                if isinstance(c, component):
+                    idx = i
+
+            self.components.pop(idx)
+
     def getC(self, component: Component) -> Component:
         for c in self.components:
             if isinstance(c, component):

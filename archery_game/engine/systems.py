@@ -2,12 +2,29 @@ from enum import unique
 from archery_game.engine.ecs import System, Entity
 from archery_game.engine.components import \
     PositionComponent, ShooterComponent, VelocityComponent, NameComponent, CustomMotionComponent, \
-    CollisionComponent, CollisionType, PairedComponent
+    CollisionComponent, CollisionType, PairedComponent, RotateComponent
 
 from typing import List, Callable
-from math import sin, cos
+from math import sin, cos, atan2
 from itertools import combinations
 import pygame
+
+class RotateSystem(System):
+    def __init__(self):
+        super().__init__()
+
+        self.subscribe(RotateComponent)
+        self.subscribe(VelocityComponent)
+
+    def update(self):
+        entities = self.get()
+
+        for e in entities:
+            # mag = sqrt(e.velocity.vx**2 + e.velocity.vy**2)
+            if e.rotate.rotateWithVelocity:
+                e.rotate.ux = e.velocity.vx # / mag
+                e.rotate.uy = e.velocity.vy # / mag
+                e.rotate.ut = atan2(e.rotate.uy, e.rotate.ux)
 
 class PhysicsSystem(System):
     def __init__(self):
@@ -83,26 +100,6 @@ class CollisionSystem(System):
         return (e1.collide.y1 > e2.collide.y2) \
             and (e1.collide.y2 < e2.collide.y1)
 
-    def get_collisions(self, entities, collision_fn, handler):
-        collisions = []
-        for e1 in entities:
-            for e2 in entities:
-                if not (e1 == e2):
-                    if collision_fn(e1, e2):
-                        # collisions.append( set([e1.id, e2.id]) )
-                        collisions.append([e1.id, e2.id])
-                        handler([[e1.id, e2.id]])
-
-        return collisions
-
-    def _unique(self, lst):
-        unique_collisions = []
-        for c in lst:
-            if c not in unique_collisions:
-                unique_collisions.append(c)
-
-        return unique_collisions
-
     def update(self, mode : str, **kwargs):
         entities = self.get()
 
@@ -138,6 +135,10 @@ class PairedSystem(System):
             if not hasattr(e.pair, 'y'):
                 e.pair.y = paired.position.y - e.position.y
 
+            # Can also remove the collision component
+            # so that arrows don't collide with each other
+            # after hitting the target
+
             if e.has(CollisionComponent):
                 if not hasattr(e.pair, 'x1'):
                     e.pair.x1 = paired.position.x - e.collide.x1
@@ -156,8 +157,8 @@ class PairedSystem(System):
                 e.collide.y2 = paired.position.y - e.pair.y2
 
             if e.has(VelocityComponent):
-                e.velocity.vx = 0
-                e.velocity.vy = 0
+                e.rotate.rotateWithVelocity = False
+                # e.dettach(VelocityComponent)
 
 def collision_x_handler(id1, id2):
     _e1 = Entity.get(id1)
@@ -277,11 +278,6 @@ class ShooterSystem(System):
             if keys[pygame.K_RIGHT]:
                 e.shooter.angle -= 0.05
             
-            # if keys[pygame.K_UP]:
-            #     e.shooter.r += 1
-            # if keys[pygame.K_DOWN]:
-            #     e.shooter.r -= 1
-
             rx = e.shooter.r * cos(e.shooter.angle) + e.shooter.x
             ry = e.shooter.r * sin(e.shooter.angle) + e.shooter.y
 

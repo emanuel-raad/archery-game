@@ -32,6 +32,9 @@ class RotateComponent:
     # The up vector that points up
     ux : float = 0.0
     uy : float = 1.0
+    ut : float = 3.14159 / 2
+
+    rotateWithVelocity : bool = False
 
 @component
 class NameComponent:
@@ -78,7 +81,15 @@ class CustomMotionComponent:
 class RenderComponent:
     namespace = 'render'
 
+    path : str = None
+    size : tuple = None
+    center : tuple = None
+    debug : str = True
     renderable : bool = True
+    priority : int = 0
+
+    def __lt__(self, other):
+        return self.priority < other.priority
 
 @component
 class ControlComponent:

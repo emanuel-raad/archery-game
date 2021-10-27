@@ -1,31 +1,28 @@
-from math import cos, sin
+from math import cos, sin, atan2
 
 import pygame
+import time
 from archery_game.engine.components import (CollisionComponent, CollisionType,
                                             CustomMotionComponent,
                                             NameComponent, PositionComponent,
                                             RenderComponent, ShooterComponent,
-                                            VelocityComponent)
+                                            VelocityComponent, RotateComponent)
 from archery_game.engine.ecs import Entity
-from archery_game.engine.render import WHITE, RenderSystem
+from archery_game.engine.render import WHITE, RenderSystem, gradientRect
 from archery_game.engine.systems import (CollisionSystem, CustomMotionSystem,
                                          PairedSystem, PhysicsSystem,
-                                         ScoreSystem, ShooterSystem)
+                                         ScoreSystem, ShooterSystem, RotateSystem)
 
 
 def main():
-    pygame.init()
-    pygame.display.set_caption("Arrow Game")
-
-    width = 480
+    width  = 480
     height = 360
-    size = (width, height)
-    
+    size   = (width, height)
+
+    pygame.init()
+    pygame.display.set_caption("Arrow Game")    
     screen = pygame.display.set_mode(size, 0, 32)
     screen.fill(WHITE)
-
-    # define a variable to control the main loop
-    running = True
 
     floor = Entity([
         NameComponent("floor"),
@@ -34,43 +31,101 @@ def main():
             x1=0, x2=width, y1=20, y2=0,
             ctype=CollisionType.RIGID
         ),
-        RenderComponent()
+        RenderComponent(
+            path = 'archery_game//scripts//grass.png',
+            center = (0, 35),
+            size = (width, 35),
+            debug=False,
+            priority=-1
+        )
     ])
+
+    sky_box = pygame.Rect(((0,0,width,width)))
+    color_box = gradientRect(sky_box, (230, 242, 255), (0, 153, 255))
+    color_box = pygame.transform.rotate(color_box, 90)
 
     target = Entity([
         NameComponent("target"),
-        PositionComponent(250, 250),
-        RenderComponent(),
+        PositionComponent(245, 270),
+        RenderComponent(
+            path = 'archery_game//scripts//target.png',
+            center = (5, 25),
+            debug = False,
+            priority=1
+        ),
         CollisionComponent(
             x1=245, x2=255, y1=270, y2=220,
             ctype=CollisionType.RIGID
         ),
         CustomMotionComponent(
-            expression_y = lambda t : 80*sin(t)
+            # expression_x = lambda t : 80*cos(t/1.5),
+            expression_y = lambda t : 80*sin(t/1.5)
         )
     ])
 
     bow = Entity([
-        ShooterComponent(0.25, 1, 21, r = 30),
-        RenderComponent()
+        ShooterComponent(0.707, 1, 21, r = 100),
+        RenderComponent(
+            path = "archery_game//scripts//aim.png",
+            size = (20, 20),
+            center = (10, 10),
+            debug = False,
+            priority=1
+        )
     ])
+
+    positions = [(x*50, 20) for x in range(10)]
+    for (x, y) in positions:
+        Entity([
+            PositionComponent(x, y),
+            RenderComponent(
+                path = 'archery_game//scripts//tree.png',
+                center = (20, 60),
+                debug = False,
+            ),
+        ])
+    for (x, y) in positions:
+        Entity([
+            PositionComponent(x+25, y),
+            RenderComponent(
+                path = 'archery_game//scripts//tree.png',
+                center = (20, 80),
+                size = (40, 80),
+                debug = False
+            ),
+        ])
+    positions = [(x*150, 20) for x in range(3)]
+    for (x, y) in positions:
+        Entity([
+            PositionComponent(x+25, y),
+            RenderComponent(
+                path = 'archery_game//scripts//tree.png',
+                center = (30, 180),
+                size = (60, 180),
+                debug = False
+            ),
+        ])
+
 
     physics  = PhysicsSystem()
     renderer = RenderSystem()
     collider = CollisionSystem()
-    pairer = PairedSystem()
-    shooter = ShooterSystem()
-    move = CustomMotionSystem()
-    scorer = ScoreSystem()
+    pairer   = PairedSystem()
+    shooter  = ShooterSystem()
+    move     = CustomMotionSystem()
+    scorer   = ScoreSystem()
+    rotater  = RotateSystem()
 
-    t = 0
-    dt = 5 / 60
+    t     = 0            # the initial time
+    dt    = 5 / 60       # the simulator time step
+    frame = 1/60 * 1000  # the length of time for one frame to run at 60 fps
+    speed = 70           # the speed of the arrow
 
-    speed = 70
-
-    # main loop
+    running = True
     while running:
+        start = time.time()
         screen.fill(WHITE)
+        screen.blit(color_box, sky_box)
 
         shooter.update()
 
@@ -82,6 +137,7 @@ def main():
         collider.update('x')
 
         pairer.update()
+        rotater.update()
         renderer.update(screen, width, height)
         scorer.update(screen)
 
@@ -89,22 +145,45 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
+                if event.key == pygame.K_SPACE: 
+
+                    x = 60
+                    y = 10
+                    col_x = x*cos(bow.shooter.angle) - y*sin(bow.shooter.angle)
+                    col_y = x*sin(bow.shooter.angle) + y*cos(bow.shooter.angle)
+
                     Entity([
                         NameComponent("arrow"),
-                        PositionComponent(bow.shooter.x, bow.shooter.y),
+                        PositionComponent(bow.shooter.x+col_x, bow.shooter.y+col_y),
                         VelocityComponent(speed*cos(bow.shooter.angle), speed*sin(bow.shooter.angle)),
-                        RenderComponent(),
+                        RotateComponent(rotateWithVelocity=True),
+                        RenderComponent(
+                            path = 'archery_game//scripts//arrow.png',
+                            size = (60, 20),
+                            center = (60, 10),
+                            debug = False,
+                            priority=1
+                        ),
                         CollisionComponent(
-                            x1=bow.shooter.x, x2=bow.shooter.x+1,
-                            y1=bow.shooter.y, y2=bow.shooter.y-1,
+                            x1=bow.shooter.x+col_x, x2=bow.shooter.x+1+col_x,
+                            y1=bow.shooter.y+col_y, y2=bow.shooter.y-1+col_y,
                             ctype=CollisionType.STICK
                         ),
                     ])
 
+        font = pygame.font.Font(pygame.font.get_default_font(), 10)
+        text = font.render("Press SPACE to shoot!", True, 'black')
+        screen.blit(text, (0, 30))
+        font = pygame.font.Font(pygame.font.get_default_font(), 10)
+        text = font.render("Press LEFT and RIGHT to aim", True, 'black')
+        screen.blit(text, (0, 45))
+
         t += dt
         pygame.display.update()
-        pygame.time.delay(int(1/60 * 1000))
+        elapsed = 1000 * (time.time() - start)
+        delay = 0 if elapsed > frame else frame - elapsed
+        pygame.time.delay(int(delay))
+        # pygame.time.delay(50)
           
 if __name__=="__main__":
     main()
