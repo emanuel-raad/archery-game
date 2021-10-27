@@ -13,7 +13,7 @@ class Entity:
     component_index = {}
 
     def __init__(self, components : List[Component] = []):
-        self.id = str(uuid.uuid4())
+        self.id = uuid.uuid4().int
         self.entity_index[self.id] = self
 
         self.components = []
@@ -32,7 +32,7 @@ class Entity:
 
         self.component_index[name].append(self)
 
-    def getC(self, component: Component) -> 'Component':
+    def getC(self, component: Component) -> Component:
         for c in self.components:
             if isinstance(c, component):
                 return c
@@ -46,6 +46,18 @@ class Entity:
     @classmethod
     def get(cls, id) -> 'Entity':
         return cls.entity_index.get(id, None)
+
+    def has(self, component: Component) -> bool:
+        for c in self.components:
+            if isinstance(c, component):
+                return True
+        return False
+
+    def __hash__(self):
+        return self.id
+
+    def __eq__(self, other):
+        return self.id == other.id
 
 class System(ABC):
     def __init__(self):
