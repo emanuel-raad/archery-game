@@ -1,13 +1,17 @@
 from enum import unique
-from archery_game.engine.ecs import System, Entity
-from archery_game.engine.components import \
-    PositionComponent, ShooterComponent, VelocityComponent, NameComponent, CustomMotionComponent, \
-    CollisionComponent, CollisionType, PairedComponent, RotateComponent
-
-from typing import List, Callable
-from math import sin, cos, atan2
 from itertools import combinations
+from math import atan2, cos, sin
+from typing import Callable, List
+
 import pygame
+from archery_game.engine.components import (CollisionComponent, CollisionType,
+                                            CustomMotionComponent,
+                                            NameComponent, PairedComponent,
+                                            PositionComponent, RotateComponent,
+                                            ShooterComponent,
+                                            VelocityComponent)
+from archery_game.engine.ecs import Entity, System
+
 
 class RotateSystem(System):
     def __init__(self):
@@ -156,7 +160,7 @@ class PairedSystem(System):
                 e.collide.y1 = paired.position.y - e.pair.y1
                 e.collide.y2 = paired.position.y - e.pair.y2
 
-            if e.has(VelocityComponent):
+            if e.has(VelocityComponent) and e.has(RotateComponent):
                 e.rotate.rotateWithVelocity = False
                 # e.dettach(VelocityComponent)
 
@@ -256,7 +260,7 @@ class CustomMotionSystem(System):
                     e.collide.x1 = e.motion.expression_x(t) + e.motion.ox1
                     e.collide.x2 = e.motion.expression_x(t) + e.motion.ox2
             if e.motion.expression_y is not None:
-                e.position.y = e.motion.expression_y(t) + e.motion.ox
+                e.position.y = e.motion.expression_y(t) + e.motion.oy
                 if e.has(CollisionComponent):
                     e.collide.y1 = e.motion.expression_y(t) + e.motion.oy1
                     e.collide.y2 = e.motion.expression_y(t) + e.motion.oy2

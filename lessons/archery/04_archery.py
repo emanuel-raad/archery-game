@@ -34,7 +34,7 @@ def main():
             ctype=CollisionType.RIGID
         ),
         RenderComponent(
-            path = 'archery_game//scripts//grass.png',
+            path = 'lessons//archery//grass.png',
             center = (0, 35),
             size = (width, 35),
             debug=False,
@@ -50,7 +50,7 @@ def main():
         NameComponent("target"),
         PositionComponent(245, 270),
         RenderComponent(
-            path = 'archery_game//scripts//target.png',
+            path = 'lessons//archery//target.png',
             center = (0, 0),
             debug = False,
             priority=1
@@ -68,7 +68,7 @@ def main():
     bow = Entity([
         ShooterComponent(0.707, 1, 21, r = 100),
         RenderComponent(
-            path = "archery_game//scripts//aim.png",
+            path = "lessons//archery//aim.png",
             size = (20, 20),
             center = (10, 10),
             debug = False,
@@ -81,7 +81,7 @@ def main():
         Entity([
             PositionComponent(x, y),
             RenderComponent(
-                path = 'archery_game//scripts//tree.png',
+                path = 'lessons//archery//tree.png',
                 center = (20, 60),
                 debug = False,
             ),
@@ -90,7 +90,7 @@ def main():
         Entity([
             PositionComponent(x+25, y),
             RenderComponent(
-                path = 'archery_game//scripts//tree.png',
+                path = 'lessons//archery//tree.png',
                 center = (20, 80),
                 size = (40, 80),
                 debug = False
@@ -101,7 +101,7 @@ def main():
         Entity([
             PositionComponent(x+25, y),
             RenderComponent(
-                path = 'archery_game//scripts//tree.png',
+                path = 'lessons//archery//tree.png',
                 center = (30, 180),
                 size = (60, 180),
                 debug = False
@@ -160,7 +160,7 @@ def main():
                         VelocityComponent(speed*cos(bow.shooter.angle), speed*sin(bow.shooter.angle)),
                         RotateComponent(rotateWithVelocity=True),
                         RenderComponent(
-                            path = 'archery_game//scripts//arrow.png',
+                            path = 'lessons//archery//arrow.png',
                             size = (60, 20),
                             center = (60, 10),
                             debug = False,
