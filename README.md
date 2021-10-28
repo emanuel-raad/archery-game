@@ -8,7 +8,7 @@ Educational lessions to teach how to make a game using Pygame
 ```
 conda create --name pygame python=3.7.10
 conda activate pygame
-conda install -c cogsci pygame
+pip install -U pygame --user
 ```
 
 After the `venv` is created, `cd` into the folder where `archery-game` is installed then run:
