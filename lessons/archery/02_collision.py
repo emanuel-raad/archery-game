@@ -26,8 +26,8 @@ class MyCollisionSystem(CollisionSystem):
         #   e.collide.x2 ( right side  )
         #   e.collide.y1 ( top side    )
         #   e.collide.y2 ( bottom side )
+        # 
         # Return true if there is a collision, false otherwise
-
         return False
 
 

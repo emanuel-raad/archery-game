@@ -9,8 +9,8 @@ from archery_game.engine.components import (CollisionComponent, CollisionType,
                                             NameComponent, PairedComponent,
                                             PositionComponent, RotateComponent,
                                             ShooterComponent,
-                                            VelocityComponent)
-from archery_game.engine.ecs import Entity, System
+                                            VelocityComponent, AccelerationComponent)
+from archery_game.engine.ecs import Entity, System, Event
 
 
 class RotateSystem(System):
@@ -41,8 +41,11 @@ class PhysicsSystem(System):
         entities = self.get()
 
         for e in entities:
-            ax = 0.0
-            ay = -9.81
+            if not e.has(AccelerationComponent):
+                e.attach(AccelerationComponent())
+
+            ax = e.accel.ax
+            ay = e.accel.ay
 
             if mode == 'x':
                 e.velocity.vx += ax * dt
@@ -114,12 +117,17 @@ class CollisionSystem(System):
                     if not (e1.collide.ctype == e2.collide.ctype == CollisionType.SLIDE):
                         collision_x_handler(e2.id, e1.id)
 
+                    # fire a collision event
+                    Event('collision').fire(e1 = e1, e2 = e2, mode=mode)
+
         elif mode == 'y':
             for (e1, e2) in combinations(entities, 2):
                 if self.is_collision(e1, e2):
                     collision_y_handler(e1.id, e2.id)
                     if not (e1.collide.ctype == e2.collide.ctype == CollisionType.SLIDE):
                         collision_y_handler(e2.id, e1.id)
+
+                    Event('collision').fire(e1 = e1, e2 = e2, mode=mode)
 
 class PairedSystem(System):
     def __init__(self):

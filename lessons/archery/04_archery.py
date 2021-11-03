@@ -2,6 +2,7 @@ import time
 from math import atan2, cos, sin
 
 import pygame
+import argparse
 from archery_game.engine.components import (CollisionComponent, CollisionType,
                                             CustomMotionComponent,
                                             NameComponent, PositionComponent,
@@ -17,6 +18,11 @@ from archery_game.engine.systems import (CollisionSystem, CustomMotionSystem,
 
 
 def main():
+
+    parser = argparse.ArgumentParser(description='Archery game!.')
+    parser.add_argument('--debug', default=False, help='Render in debug mode')
+    args = parser.parse_args()
+
     width  = 480
     height = 360
     size   = (width, height)
@@ -52,7 +58,7 @@ def main():
         RenderComponent(
             path = 'lessons//archery//target.png',
             center = (0, 0),
-            debug = False,
+            debug = args.debug,
             priority=1
         ),
         CollisionComponent(
@@ -163,7 +169,7 @@ def main():
                             path = 'lessons//archery//arrow.png',
                             size = (60, 20),
                             center = (60, 10),
-                            debug = False,
+                            debug = args.debug,
                             priority=1
                         ),
                         CollisionComponent(

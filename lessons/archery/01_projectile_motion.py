@@ -28,14 +28,10 @@ class MyPhysicsSystem(PhysicsSystem):
 
             if mode == 'x':
                 # Update the x position and velocity here
-                e.velocity.vx += ax * dt
-                e.position.x += e.velocity.vx * dt
                 pass
 
             elif mode == 'y':
                 # Update the y position and velocity here
-                e.velocity.vy += ay * dt
-                e.position.y += e.velocity.vy * dt
                 pass
 
 def main():

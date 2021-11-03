@@ -72,6 +72,7 @@ class Entity:
         return self.id == other.id
 
 class System(ABC):
+
     def __init__(self):
         self.requires = []
 
@@ -90,3 +91,26 @@ class System(ABC):
     @abstractmethod
     def update(self, **kwargs):
         pass
+
+class Observer(ABC):
+    watchers = []
+
+    def __init__(self):
+        self.watchers.append(self)
+        self.callbacks = {}
+
+    def watch(self, event_name, callback):
+        if not event_name in self.callbacks:
+            self.callbacks[event_name] = []
+
+        self.callbacks[event_name] += [ callback ]
+
+class Event(ABC):
+    def __init__(self, name):
+        self.name = name
+
+    def fire(self, **kwargs):
+        for observer in Observer.watchers:
+            if self.name in observer.callbacks:
+                for c in observer.callbacks[self.name]:
+                    c(**kwargs)

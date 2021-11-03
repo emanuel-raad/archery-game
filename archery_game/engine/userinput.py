@@ -4,10 +4,13 @@ from archery_game.engine.ecs import Entity, System
 from archery_game.engine.components import PositionComponent, ControlComponent, CollisionComponent
 
 class MovementSystem(System):
-    def __init__(self, entity_id):
+    def __init__(self, entity_id, speed = 1, dir='xy'):
         super().__init__()
 
         self.entity_id = entity_id
+        self.speed = speed
+        self.dir = dir
+
         e = Entity.get(self.entity_id)
 
         assert e.has(PositionComponent)
@@ -17,27 +20,27 @@ class MovementSystem(System):
         e = Entity.get(self.entity_id)
 
         keys = pygame.key.get_pressed()
-        speed = 1
+        speed = self.speed
 
-        if mode == 'x':
-            if keys[pygame.K_LEFT]:
+        if mode == 'x' and 'x' in self.dir:
+            if keys[pygame.K_LEFT] or keys[pygame.K_a]:
                 e.position.x -= speed
                 if e.has(CollisionComponent):
                     e.collide.x1 -= speed
                     e.collide.x2 -= speed
-            if keys[pygame.K_RIGHT]:
+            if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
                 e.position.x += speed
                 if e.has(CollisionComponent):
                     e.collide.x1 += speed
                     e.collide.x2 += speed
         
-        elif mode == 'y':
-            if keys[pygame.K_UP]:
+        elif mode == 'y' and 'y' in self.dir:
+            if keys[pygame.K_UP] or keys[pygame.K_w]:
                 e.position.y += speed
                 if e.has(CollisionComponent):
                     e.collide.y1 += speed
                     e.collide.y2 += speed
-            if keys[pygame.K_DOWN]:
+            if keys[pygame.K_DOWN] or keys[pygame.K_s]:
                 e.position.y -= speed
                 if e.has(CollisionComponent):
                     e.collide.y1 -= speed

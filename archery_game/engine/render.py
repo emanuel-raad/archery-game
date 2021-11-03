@@ -1,5 +1,6 @@
 import operator
 from math import cos, degrees, sin
+from copy import copy
 
 import pygame
 from archery_game.engine.components import (CollisionComponent,
@@ -47,7 +48,7 @@ class RenderSystem(System):
                     # Cache the original image instead of reading it from the file every loop
                     if not hasattr(e.render, '_cached_img'):
                         img = pygame.image.load(e.render.path).convert_alpha()
-                        e.render._cached_img = img.copy()
+                        e.render._cached_img = copy(img)
                     else:
                         img = e.render._cached_img
 

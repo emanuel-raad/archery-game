@@ -22,6 +22,14 @@ class VelocityComponent:
     vy : float = 0.0
 
 @component
+class AccelerationComponent:
+    namespace = 'accel'
+
+    # The acceleration vector components
+    ax : float = 0
+    ay : float = -9.81
+
+@component
 class RotateComponent:
     namespace = 'rotate'
 
@@ -32,6 +40,8 @@ class RotateComponent:
     # The up vector that points up
     ux : float = 0.0
     uy : float = 1.0
+
+    # The angle in radians
     ut : float = 3.14159 / 2
 
     rotateWithVelocity : bool = False
