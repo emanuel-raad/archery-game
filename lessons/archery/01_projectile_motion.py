@@ -22,17 +22,22 @@ class MyPhysicsSystem(PhysicsSystem):
             #     e.position.y
             #     e.velocity.vx
             #     e.velocity.vy
+            # And the change in time is:
+            #     dt
 
             ax = 0.0
             ay = -9.81
 
             if mode == 'x':
                 # Update the x position and velocity here
-                pass
+                e.velocity.x = 0 # Add missing equation here
+                e.position.x = 0 # ^
 
             elif mode == 'y':
                 # Update the y position and velocity here
-                pass
+                e.velocity.y = 0 # Add missing equation here
+                e.position.y = 0 # ^
+
 
 def main():
     width  = 480
@@ -49,14 +54,14 @@ def main():
 
     t     = 0            # the initial time
     dt    = 5 / 60       # the simulator time step
-    frame = 1/60 * 1000  # the length of time for one frame to run at 60 fps
+    frame = 60           # the target framerate
     speed = 80           # the speed of the arrow
-
     angle = 75 * (3.14159 / 180)
+    clock = pygame.time.Clock()
 
     running = True
     while running:
-        start = time.time()
+        clock.tick(frame)
         screen.fill(WHITE)
 
         physics.update('y', dt = dt)
@@ -78,11 +83,12 @@ def main():
                         )
                     ])
 
+        font = pygame.font.Font(pygame.font.get_default_font(), 20)
+        text = font.render("Press SPACE to shoot!", True, 'black')
+        screen.blit(text, (0, 0))
+
         t += dt
         pygame.display.update()
-        elapsed = 1000 * (time.time() - start)
-        delay = 0 if elapsed > frame else frame - elapsed
-        pygame.time.delay(int(delay))
           
 if __name__=="__main__":
     main()

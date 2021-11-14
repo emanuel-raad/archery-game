@@ -24,7 +24,7 @@ def asteroid_factory(x, y, vel, size=[20, 20]):
     angle = random.randint(0, 360) * 3.14159 / 180
 
     return Entity([
-        NameComponent( 'asteroid_' + str(uuid.uuid4()) ),
+        NameComponent( 'asteroid' ),
         PositionComponent(x, y),
         VelocityComponent(-vel, 0),
         AccelerationComponent(ay=0.0),
@@ -63,7 +63,6 @@ class GameState(Observer):
             if e2.has(NameComponent): names += e2.name.name
 
             if 'rocket' in names and 'asteroid' in names:
-                print('you lose!')
                 self.lose = True
 
         self.watch('collision', _collision_callback)
@@ -84,6 +83,12 @@ class AsteroidScoreSystem(System):
         for e in entities:            
             if e.position.x < 0 and 'asteroid' in e.name.name:
                 self.score += 1
+                
+            # Remove attributes for performance reasons
+            if e.position.x < -30 and 'asteroid' in e.name.name:
+                e.dettach(RenderComponent)
+                e.dettach(CollisionComponent)
+                e.dettach(VelocityComponent)
 
         font = pygame.font.Font(pygame.font.get_default_font(), 30)
         text = font.render("Score: {}".format(self.score), True, 'white')

@@ -48,14 +48,14 @@ def main():
 
     t     = 0            # the initial time
     dt    = 5 / 60       # the simulator time step
-    frame = 1/60 * 1000  # the length of time for one frame to run at 60 fps
+    frame = 60           # the target framerate
     speed = 80           # the speed of the arrow
-
     angle = 75 * (3.14159 / 180)
+    clock = pygame.time.Clock()
 
     running = True
     while running:
-        start = time.time()
+        clock.tick(frame)
         screen.fill(WHITE)
 
         mover.update(t)
@@ -86,9 +86,6 @@ def main():
 
         t += dt
         pygame.display.update()
-        elapsed = 1000 * (time.time() - start)
-        delay = 0 if elapsed > frame else frame - elapsed
-        pygame.time.delay(int(delay))
           
 if __name__=="__main__":
     main()

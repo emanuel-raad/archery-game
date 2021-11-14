@@ -126,12 +126,13 @@ def main():
 
     t     = 0            # the initial time
     dt    = 5 / 60       # the simulator time step
-    frame = 1/60 * 1000  # the length of time for one frame to run at 60 fps
-    speed = 70           # the speed of the arrow
+    frame = 60           # the target framerate
+    speed = 80           # the speed of the arrow
+    clock = pygame.time.Clock()
 
     running = True
     while running:
-        start = time.time()
+        clock.tick(frame)
         screen.fill(WHITE)
         screen.blit(color_box, sky_box)
 
@@ -188,10 +189,6 @@ def main():
 
         t += dt
         pygame.display.update()
-        elapsed = 1000 * (time.time() - start)
-        delay = 0 if elapsed > frame else frame - elapsed
-        pygame.time.delay(int(delay))
-        # pygame.time.delay(50)
           
 if __name__=="__main__":
     main()

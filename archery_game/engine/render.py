@@ -73,6 +73,11 @@ class RenderSystem(System):
                     else:
                         screen.blit(img, (x - cx, y - cy))
 
+                # Draw the position
+                if e.has(PositionComponent) and e.render.debug:
+                    x, y = cartesian_to_screen(e.position.x, e.position.y, width, height)
+                    pygame.draw.circle(screen, RED, (x, y), 5)
+
                 # Draw the bounding box
                 if e.has(CollisionComponent) and e.render.debug:
                     x1, y1 = cartesian_to_screen(e.collide.x1, e.collide.y1, width, height)
@@ -87,8 +92,3 @@ class RenderSystem(System):
                     pygame.draw.line(screen, BLUE, (x2, y1), (x2, y2))
                     pygame.draw.line(screen, BLUE, (x1, y2), (x2, y2))
                     pygame.draw.line(screen, BLUE, (x1, y1), (x1, y2))
-
-                # Draw the position
-                if e.has(PositionComponent) and e.render.debug:
-                    x, y = cartesian_to_screen(e.position.x, e.position.y, width, height)
-                    pygame.draw.circle(screen, RED, (x, y), 5)
